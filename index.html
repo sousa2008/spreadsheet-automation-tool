@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+</head>
+<style>
+    :root{--primary-color: #e3c0fb; --second-color: #bf72f3}
+      body { font-family: Arial, sans-serif; padding: 15px; }
+      textarea { width: 100%; height: 180px; margin-bottom: 15px; padding: 10px; box-sizing: border-box; border-radius: 10px }
+      button { padding: 10px 15px; background-color: var(--primary-color); color: white; border: none; cursor: pointer; border-radius: 4px; font-weight: bold;}
+      button:hover { background-color: var(--second-color); }
+    </style>
+<body>
+  <h2>IMPORTAR PARA A TABELA ARQUIVO</h2>
+  <p>Cole as colunas copiadas da planilha "COLETAS" na área abaixo</p>
+
+  <textarea id="dadosColeta" placeholder="Cole os dados aqui..."></textarea>
+  <button onclick="enviarDados()">Importar dados</button>
+
+  <script>
+    function enviarDados(){
+        const dados = document.getElementById('dadosColeta').value;
+
+        const id = 1
+        google.script.run.withSuccessHandler(() =>{
+          alert("Registros inseridos com sucesso!");
+          google.script.host.close();
+        }).processarDadosColados(id, dados);
+
+
+      }
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <style>
+    :root {
+      --primary-color: #e3c0fb;
+      --second-color: #bf72f3
+    }
+
+    span {
+      color: var(--second-color)
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      padding: 25px;
+    }
+
+    button {
+      padding: 20px 30px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: var(--second-color);
+    }
+
+    ul {
+      padding: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Manual</h2>
+  <p>Essa aqui é a <span>IMPORTAÇÃO DE ARQUIVO</span></p>
+
+  <p>Copie as colunas da planilha <span>COLETAS</span> e cole na área indicada</p>
+  <p>Garanta que os seguintes dados estejam nas seguintes colunas:</p>
+  <ul>
+    <li>A <span> DT </span> esteja na coluna F;</li>
+    <li> A <span> DATA DA COLETA </span> na coluna L;</li>
+    <li>A <span> NF </span> na coluna W;</li>
+  </ul>
+  <p>Após isso faça a importação</p>
+  <p>Confira se os dados batem com a planilha de coletas</p>
+
+  <button onclick="google.script.run.abrirIndex()">Registrar Fretes!</button>
+  <button onclick="google.script.run.abrirExtra()">Registrar Extra-Fretes!</button>
+</body>
+
+</html>
