@@ -1,3 +1,7 @@
+const propriedades = PropertiesService.getScriptProperties();
+const urlBase = propriedades.getProperty('SUPABASE_URL'); 
+const apiKey = propriedades.getProperty('SUPABASE_KEY');
+
 // =========================================================================
 // 1. NAVEGAÇÃO E MENUS (UI)
 // =========================================================================
@@ -11,6 +15,8 @@ function onOpen() {
     .addSeparator()
     .addItem('❗ TRIAGEM: ', 'titulo')
     .addItem('🕒 Conferir NFs sem Upload', 'pendentes')
+    .addItem('📅 Conferir dia com mais upload', 'maisUploads')
+    .addItem('📊 Conferir uploads de hoje', 'uploadsDeHoje')
     .addSeparator()
     .addItem("❗ REGISTRAR: ", 'titulo')
     .addItem('📝 Adicionar Registros', 'abrirExplicacao')
@@ -109,7 +115,7 @@ function abrirPesquisa(dadosFiltrados) {
   template.dadosInjetados = JSON.stringify(dadosFiltrados);
 
   // Alterado: .evaluate() é obrigatório para processar o template e as tags <?= ?>
-  const html = template.evaluate() 
+  const html = template.evaluate()
     .setWidth(600)
     .setHeight(450);
 
@@ -119,14 +125,14 @@ function abrirPesquisa(dadosFiltrados) {
 function encontrarNf(nfForcada) {
   const pesquisa = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("PESQUISA");
 
-// nfForcada tem prioridade, então caso ela exista (vem do js), ela sempre será passada na frente e será pesquisada
+  // nfForcada tem prioridade, então caso ela exista (vem do js), ela sempre será passada na frente e será pesquisada
   const celulaNf = nfForcada ? nfForcada : pesquisa.getRange(11, 5).getValue();
-// elvis operator (if simplificado)
+  // elvis operator (if simplificado)
 
   const ultimaLinhaPesquisa = pesquisa.getLastRow();
-  
 
-  const resultadosRange = pesquisa.getRange(11, 4, ultimaLinhaPesquisa - 10, 8); 
+
+  const resultadosRange = pesquisa.getRange(11, 4, ultimaLinhaPesquisa - 10, 8);
   const resultados = resultadosRange.getValues();
 
   const arquivo = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("ARQUIVO");
@@ -138,19 +144,18 @@ function encontrarNf(nfForcada) {
   }
 
   // só cai aqui se realmente nf vindo do js não existir
-   if (!nfForcada && resultados.length > 1) {   
+  if (!nfForcada && resultados.length > 1) {
     // 1. Primeiro filtramos e mapeamos os dados reais existentes na tabela
-    const filtrado = resultados.filter(function(linha) {
+    const filtrado = resultados.filter(function (linha) {
       return linha[1] && String(linha[1]).trim() !== "";
-    }).map(function(linha) {
+    }).map(function (linha) {
       const nf = linha[1];
       const evento = linha[2];
       return [nf, evento];
     });
-    
+
 
     if (filtrado.length > 1) {
-      SpreadsheetApp.getUi().alert(JSON.stringify(filtrado)); // Coloque isso antes de abrirPesquisa(filtrado)
       abrirPesquisa(filtrado);
       return filtrado;
     }
@@ -178,10 +183,10 @@ function encontrarNf(nfForcada) {
 
 function selecionarNfEProcessar(nfEscolhida) {
   const pesquisa = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("PESQUISA");
-  
+
   // 1. Escreve a NF selecionada de volta na célula de busca (E11)
   pesquisa.getRange(11, 5).setValue(nfEscolhida);
-  
+
   // 2. Executa a sua função principal novamente.
   // Como agora a célula E11 tem um valor específico, ela vai rodar a busca direta no "ARQUIVO".
   encontrarNf();
@@ -229,7 +234,7 @@ function onEdit(e) {
   if (planilhaAtiva === "ARQUIVO" && colunaAtiva === 9) {
     const abaArquivo = celulaEditada.getSheet(); // Instancia a aba localmente
     const celulaUpload = abaArquivo.getRange(linhaAtiva, 8);
-    const celulaMes = abaArquivo.getRange(linhaAtiva, 11);
+    const celulaMes = abaArquivo.getRange(linhaAtiva, 12);
 
     if (valorDigitado === "SUBIU") {
       // Validador de histórico: Só atua se a célula estiver vazia
@@ -248,7 +253,7 @@ function onEdit(e) {
         "Maio", "Junho", "Julho", "Agosto",
         "Setembro", "Outubro", "Novembro", "Dezembro"
       ];
-      celulaMes.setValue(meses[valorMes]);
+      //celulaMes.setValue(meses[valorMes]); ATIVAR NO FUTURO
     }
     else if (valorDigitado !== "SUBIU") {
       celulaUpload.clearContent();
@@ -308,14 +313,38 @@ function abrirExplicacao() {
   SpreadsheetApp.getUi().showModalDialog(html, ' ')
 }
 
+// ==========================================
+// FUNÇÕES AUXILIARES 
+// ==========================================
+
+function isNumeroValido(valor, tamanhoMin, tamanhoMax) {
+  if (!valor) return false;
+  const texto = String(valor).trim();
+  const eApenasNumero = /^\d+$/.test(texto);
+  const tamanhoValido = texto.length >= tamanhoMin && texto.length <= tamanhoMax;
+  return eApenasNumero && tamanhoValido;
+}
+
+function formatarDataISO(dataStr) {
+  if (!dataStr || typeof dataStr !== 'string') return null;
+  const partes = dataStr.trim().split('/');
+  if (partes.length === 3 && partes[2].length === 4) {
+    return `${partes[2]}-${partes[1].padStart(2, '0')}-${partes[0].padStart(2, '0')}`;
+  }
+  return null;
+}
+
+// ==========================================
+// FUNÇÃO PRINCIPAL
+// ==========================================
+
 function processarDadosColados(id, dados, nfsE) {
   const linhas = dados.split("\n");
   const matrizParaInserir = [];
-
   const abaArquivo = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("ARQUIVO");
   const ultimaLinha = abaArquivo.getLastRow();
+
   if (id === 1) {
-    // VALIDADOR DE NF DUPLICADA (Busca O(1) usando Set)
     let nfsExistentes = new Set();
 
     if (ultimaLinha > 1) {
@@ -325,105 +354,174 @@ function processarDadosColados(id, dados, nfsE) {
 
     for (let i = 0; i < linhas.length; i++) {
       if (linhas[i].trim() === "") continue;
-      let evento = "FRETE"
-
+      
       const colunas = linhas[i].split("\t");
       const dt = colunas[5];
       const dataColeta = colunas[11];
       const nf = colunas[22];
 
-      // Se a NF já estiver no banco, pula o registro
+      // VALIDAÇÃO 1: Barrar lixos imediatamente
+      if (!isNumeroValido(dt, 6, 9) || !isNumeroValido(nf, 3, 7)) {
+        continue; // Ignora a linha inteira se a DT ou a NF não forem numéricas
+      }
+
+      // VALIDAÇÃO 2: Verificar duplicatas no banco/memória
       if (nfsExistentes.has(String(nf))) {
         continue;
       }
 
-      const novaLinha = [dt, nf, evento, dataColeta, "", "", "", ""];
+      const novaLinha = [dt, nf, "FRETE", dataColeta, "", "", "", ""];
       matrizParaInserir.push(novaLinha);
-
-      // Protege contra NFs repetidas dentro da própria área de transferência copiada
       nfsExistentes.add(String(nf));
     }
 
-    // Inserção final na planilha
-    if (matrizParaInserir.length > 0) {
-      var linhaFormat = abaArquivo.getRange(ultimaLinha - 1, 4, 1, abaArquivo.getLastColumn());
-
-      linhaFormat.copyTo(abaArquivo.getRange(ultimaLinha + 1, 4, matrizParaInserir.length, 8).setValues(matrizParaInserir), SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false)
-      // transforma todos os novos dados com a formatação da linha já existente
-    }
-  }
-  else if (id === 2) {
-    // VALIDADOR DE NF DUPLICADA (Busca O(1) usando Set)
+  } else if (id === 2) {
     let nfsExistentes = new Set();
-
     if (ultimaLinha > 1) {
       const valoresNfs = abaArquivo.getRange(2, 5, ultimaLinha - 1, 1).getValues();
       valoresNfs.forEach(linha => nfsExistentes.add(String(linha[0])));
     }
-    const linhaDados = dados.split("\n")
-    const linhasNfs = nfsE.split("\n")
 
-    for (let i = 0; i < linhas.length; i++) {
-      if (linhas[i].trim() === "") continue;
+    // 1. LÊ APENAS A CAIXA DE TEXTO PRINCIPAL
+    const linhasDados = dados.trim().split("\n");
 
-      // textarea dados
-      const colunas = linhas[i].split("\t");
+    for (let i = 0; i < linhasDados.length; i++) {
+      if (linhasDados[i].trim() === "") continue;
+
+      const colunas = linhasDados[i].split("\t");
+      
+      // Se a linha for mais curta que a coluna 24, significa que não tem extra frete nela
+      if (colunas.length < 25) continue; 
+
       const dt = colunas[5];
       const dataColeta = colunas[11];
 
-      // TRAVA DE SEGURANÇA: Se a linha de NFs não existir (cópia desalinhada), pula.
-      if (linhasNfs[i] === undefined) continue;
+      // O FILTRO NATURAL: Se for linha de cabeçalho intermediário ("DT", "TRANSPORTADORA"), 
+      // a função isNumeroValido vai dar falso e o código pula a linha sem dar erro.
+      if (!dt || !isNumeroValido(dt, 6, 9)) continue;
 
-
-      const listaDeNfs = linhasNfs[i].split("\t");
-      // 4. O LAÇO ANINHADO (O Segredo para duplicar a DT)
-      // Ele vai varrer a lista de NFs daquela linha específica
+      // 2. EXTRAI OS EXTRA FRETES DIRETO DA MESMA LINHA
+      // (Ignoramos o índice 23 que é o CIOT)
+      const listaDeNfs = [
+        colunas[24], // DESCARGA
+        colunas[25], // REENTREGA
+        colunas[26], // RETORNO
+        colunas[27], // ESTADIA
+        colunas[28], // DESLOCAMENTO VAZIO
+        colunas[29]  // VALE-PEDÁGIO
+      ];
+      
       for (let j = 0; j < listaDeNfs.length; j++) {
-        const nf = String(listaDeNfs[j]).trim();
-        
-        // valida qual coluna está e define o evento
-        let evento = "teste"
-        if (j === 0) { 
-          evento = "DESCARGA"
-        }
-        else if (j === 1) {
-          evento = "REENTREGA"
-        }
-        else if (j === 2) {
-          evento = "RETORNO"
-        }
-        else if (j === 3) {
-          evento = "ESTADIA"
-        }
-        else if (j === 4) {
-          evento = "DESLOCAMENTO VAZIO"
-        }
-        else{
-          evento = "Evento não identificado"
-        }
-        
-        // Se a célula dessa coluna copiada estava vazia, ignora e vai pra próxima
-        if (nf === "") continue;
+        const nf = String(listaDeNfs[j] || "").trim();
 
-        // Se a NF já existe no banco, ignora
+        if (!isNumeroValido(nf, 3, 7)) continue;
         if (nfsExistentes.has(nf)) continue;
 
-        // Monta a linha nova!
-        // Perceba que usamos a variável 'dt' do laço de fora, 
-        // então ela vai se repetir para cada NF que passar por aqui!
+        let evento = "Evento não identificado";
+        if (j === 0) evento = "DESCARGA";
+        else if (j === 1) evento = "REENTREGA";
+        else if (j === 2) evento = "RETORNO";
+        else if (j === 3) evento = "ESTADIA";
+        else if (j === 4) evento = "DESLOCAMENTO VAZIO";
+        else if (j === 5) evento = "VALE-PEDÁGIO";
+
         const novaLinha = [dt, nf, evento, dataColeta, "", "", "", ""];
         matrizParaInserir.push(novaLinha);
-
         nfsExistentes.add(nf);
       }
     }
-    // Inserção final na planilha
+
+    // Inserção final na planilha (mantém igual)
     if (matrizParaInserir.length > 0) {
       var linhaFormat = abaArquivo.getRange(ultimaLinha - 1, 4, 1, abaArquivo.getLastColumn());
-
-      linhaFormat.copyTo(abaArquivo.getRange(ultimaLinha + 1, 4, matrizParaInserir.length, 8).setValues(matrizParaInserir), SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false)
-      // transforma todos os novos dados com a formatação da linha já existente
+      linhaFormat.copyTo(abaArquivo.getRange(ultimaLinha + 1, 4, matrizParaInserir.length, 8).setValues(matrizParaInserir), SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
     }
+  }
+
+  // ==========================================
+  // INSERÇÃO EM LOTE NA PLANILHA E NO SUPABASE
+  // (Este bloco roda igual para o id 1 e 2)
+  // ==========================================
+  if (matrizParaInserir.length > 0) {
+    
+    // 1. Preparar pacote para o Supabase
+    const pacoteSupabase = matrizParaInserir.map(linha => {
+      return {
+        dt: String(linha[0]),
+        nf: String(linha[1]),
+        evento: linha[2],
+        data_coleta: formatarDataISO(String(linha[3]))
+      };
+    });
+
+
+// 2. DISPARAR PARA A API COM ESCUDO (Try/Catch)
+    const pacoteHttp = {
+      method: 'post',
+      headers: {
+        'apikey': apiKey,
+        'Authorization': 'Bearer ' + apiKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      payload: JSON.stringify(pacoteSupabase),
+      muteHttpExceptions: true
+    };
+
+    let textoStatus;
+    let corFundo;
+
+    // TRY: O sistema "tenta" executar este bloco
+    try {
+      const urlTabela = urlBase + 'controle_lupeon?on_conflict=dt,nf,evento';
+      const resposta = UrlFetchApp.fetch(urlTabela, pacoteHttp);
+      const codigoHttp = resposta.getResponseCode();
+
+      // Avalia se o HTTP retornou Sucesso
+      if (codigoHttp === 200 || codigoHttp === 201) {
+        textoStatus = "SALVO";
+        corFundo = "#d9ead3"; // Verde
+      } else {
+        textoStatus = "ERRO HTTP " + codigoHttp;
+        corFundo = "#f4cccc"; // Vermelho
+        // Grava no log o motivo da API ter rejeitado os dados
+        registrarLog("Supabase API", "Código " + codigoHttp + ": " + resposta.getContentText());
+      }
+
+    } 
+    // CATCH: Se der falha de rede, timeout ou crash, ele "captura" o erro e cai aqui
+    catch (erro) {
+      textoStatus = "FALHA DE REDE";
+      corFundo = "#ffd966"; // Amarelo (Para diferenciar de erro de validação da API)
+      
+      // Grava no log a exceção exata gerada pelos servidores da Google
+      registrarLog("processarDadosColados - Network", erro.message || erro);
+    }
+    // 3. COLAR DADOS NA PLANILHA
+    for (let k = 0; k < matrizParaInserir.length; k++) {
+      matrizParaInserir[k][7] = textoStatus; 
+    }
+    const urlTabela = urlBase + 'controle_lupeon?on_conflict=dt,nf,evento';
+    const resposta = UrlFetchApp.fetch(urlTabela, pacoteHttp);
+    const codigoHttp = resposta.getResponseCode();
+
+    // 3. Status e Cores
+    deuCerto = (codigoHttp === 200 || codigoHttp === 201);
+    textoStatus = deuCerto ? "SALVO" : "ERRO " + codigoHttp;
+    corFundo = deuCerto ? "#d9ead3" : "#f4cccc";
+
+    for (let k = 0; k < matrizParaInserir.length; k++) {
+      matrizParaInserir[k][7] = textoStatus; 
+    }
+
+    // 4. Colar na Planilha
+    var linhaFormat = abaArquivo.getRange(ultimaLinha - 1, 4, 1, abaArquivo.getLastColumn());
+    const intervaloNovos = abaArquivo.getRange(ultimaLinha + 1, 4, matrizParaInserir.length, 8);
+    
+    intervaloNovos.setValues(matrizParaInserir);
+    linhaFormat.copyTo(intervaloNovos, SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
+    
+    abaArquivo.getRange(ultimaLinha + 1, 11, matrizParaInserir.length, 1).setBackground(corFundo);
   }
 }
 
@@ -484,4 +582,117 @@ function resumoMes() {
   // O JSON.stringify converte o objeto em uma string legível
   SpreadsheetApp.getUi().alert(JSON.stringify(contagem, null, 2));
 
+}
+
+function maisUploads() {
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+  const arquivo = planilha.getSheetByName("ARQUIVO");
+  const ultimaLinha = arquivo.getLastRow();
+  
+  if (ultimaLinha < 3) {
+    SpreadsheetApp.getUi().alert("Sem dados suficientes.");
+    return;
+  }
+
+  // Pega a linha 3, coluna 8 (H), até a última linha com dados
+  const totalLinhas = ultimaLinha - 2;
+  const valoresData = arquivo.getRange(3, 8, totalLinhas, 1).getValues();
+  const contagemDias = {};
+
+  // Loop para contar a frequência de cada data
+  for (let i = 0; i < valoresData.length; i++) {
+    let dataFormatada = valoresData[i][0];
+    
+    // Ignora células vazias
+    if (!dataFormatada) continue;
+
+    // Se a data for um objeto Date do JS, converte para string/texto legível
+    if (dataFormatada instanceof Date) {
+      dataFormatada = Utilities.formatDate(dataFormatada, planilha.getSpreadsheetTimeZone(), "dd/MM/yyyy");
+    }
+
+    // Conta a ocorrência da data
+    contagemDias[dataFormatada] = (contagemDias[dataFormatada] || 0) + 1;
+  }
+
+  // 1. Transforma o objeto { "data": quantidade } em uma lista de arrays: [ ["data", quantidade], ... ]
+  const listaOrdenada = Object.keys(contagemDias).map(function(data) {
+    return [data, contagemDias[data]];
+  });
+
+  // 2. Ordena a lista do maior para o menor com base na quantidade de uploads
+  listaOrdenada.sort(function(a, b) {
+    return b[1] - a[1];
+  });
+
+  // 3. Pega apenas os 3 primeiros colocados (ou menos, caso existam poucos dias no arquivo)
+  const topTres = listaOrdenada.slice(0, 3);
+
+  // 4. Monta o texto de exibição do ranking
+  let mensagem = "🏆 TOP 3 DIAS COM MAIS UPLOADS:\n\n\n";
+  
+  for (let j = 0; j < topTres.length; j++) {
+    mensagem += (j + 1) + "º Lugar: " + topTres[j][0] + " — " + topTres[j][1] + " envios.\n";
+  }
+
+  // Se o objeto estiver vazio (caso a planilha só tenha células em branco na coluna)
+  if (topTres.length === 0) {
+    mensagem = "Nenhum dado de upload foi encontrado.";
+  }
+
+  // Retorna o resultado em um alerta na tela
+  SpreadsheetApp.getUi().alert(mensagem);
+}
+
+function uploadsDeHoje() {
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+  const arquivo = planilha.getSheetByName("ARQUIVO");
+  const ultimaLinha = arquivo.getLastRow();
+
+  if (ultimaLinha < 3) {
+    SpreadsheetApp.getUi().alert('Sem dados suficientes.');
+    return;
+  }
+
+  // Pega a linha 3, coluna 8 (H), até a última linha com dados
+  const totalLinhas = ultimaLinha - 2;
+  const valoresData = arquivo.getRange(3, 8, totalLinhas, 1).getValues();
+
+  // Formata a data de hoje no mesmo padrão (dd/MM/yyyy) usando a zona da planilha
+  const hoje = Utilities.formatDate(new Date(), planilha.getSpreadsheetTimeZone(), 'dd/MM/yyyy');
+  let contadorHoje = 0;
+
+  for (let i = 0; i < valoresData.length; i++) {
+    let valorCelula = valoresData[i][0];
+    if (!valorCelula) continue;
+
+    // Converte o valor da célula para string formatada se for objeto Date
+    if (valorCelula instanceof Date) {
+      valorCelula = Utilities.formatDate(valorCelula, planilha.getSpreadsheetTimeZone(), 'dd/MM/yyyy');
+    } else {
+      // Se já estiver como texto, garante que está apenas com a data (caso venha com horário, etc.)
+      valorCelula = String(valorCelula).trim();
+    }
+
+    if (valorCelula === hoje) {
+      contadorHoje++;
+    }
+  }
+
+  const mensagem = `📅 UPLOADS REALIZADOS HOJE (${hoje}):\n\nTotal: ${contadorHoje} envio(s).`;
+  SpreadsheetApp.getUi().alert(mensagem);
+}
+
+
+function isNFValida(nf) {
+  if (!nf) return false;
+  const nfTexto = String(nf).trim();
+  
+  // Regra 1: Deve conter APENAS números (bloqueia "PO FRETE", "ok", "????", "ATA COLETA")
+  const eApenasNumero = /^\d+$/.test(nfTexto);
+  
+  // Regra 2: Deve ter um tamanho mínimo real de NF (ex: pelo menos 3 dígitos)
+  const tamanhoValido = nfTexto.length >= 3 && nfTexto.length <= 10;
+  
+  return eApenasNumero && tamanhoValido;
 }

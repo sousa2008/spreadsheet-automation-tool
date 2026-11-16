@@ -16,19 +16,18 @@
   <p>Cole as colunas copiadas da planilha "COLETAS" na área abaixo</p>
 
   <textarea id="dadosColeta" placeholder="Cole os dados aqui..."></textarea>
-  <textarea id="dadosNfs" placeholder="Cole as nfs aqui..."></textarea>
   <button onclick="enviarDados()">Importar dados</button>
 
   <script>
     function enviarDados(){
         const dados = document.getElementById('dadosColeta').value;
-        const nfs = document.getElementById('dadosNfs').value;
+
 
         const id = 2
         google.script.run.withSuccessHandler(() =>{
           alert("Registros inseridos com sucesso!");
           google.script.host.close();
-        }).processarDadosColados(id, dados, nfs);
+        }).processarDadosColados(id, dados);
 
 
       }
