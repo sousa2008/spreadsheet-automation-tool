@@ -16,7 +16,7 @@ O projeto foi construído utilizando conceitos modernos de desenvolvimento ágil
 * **Validação Anti-Duplicidade em O(1):** Utilização de objetos `Set` para indexação e varredura instantânea de Notas Fiscais existentes, impedindo registros duplicados na base de dados.
 * **Busca Reativa Dinâmica:** Substituição de fórmulas lentas de planilhas por um motor de busca em memória acionado por gatilhos de edição (`onEdit`), permitindo filtrar por DT ou NF instantaneamente ao pressionar Enter.
 * **Auditoria Funcional de Pendências:** Encadeamento de métodos de alta performance (`.filter()` e `.map()`) para rastrear documentos sem status de upload e gerar alertas automatizados.
-* **Dashboard Gerencial com `.reduce()`:** Agrupamento e sumarização de indicadores operacionais por período, alimentando painéis visuais de forma automatizada.
+* **Conexão com SUPABASE na nuvem** agrupamento das funções de pesquisa e consulta através do painel da supabase.
 
 ## 🛠️ Tecnologias Utilizadas
 
@@ -24,6 +24,7 @@ O projeto foi construído utilizando conceitos modernos de desenvolvimento ágil
 * **JavaScript Moderno** (Manipulação de Arrays, Objetos e Programação Funcional)
 * **Google Sheets API** (Camada de Persistência de Dados)
 * **HTML5 / CSS3** (Interface de Front-end para os modais de importação)
+* **Supabase / PostegreSQL** (Conexão e gerenciamento de=o banco de dados na nuvem)
 
 ---
 
