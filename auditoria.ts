@@ -14,7 +14,7 @@ class AuditorPlanilha {
     private diasLimiteAtencao: number;
     private diasLimiteCritico: number;
 
-    constructor(nomeAba:string, diasAtencao:number = 2, diasCritico:number = 5){
+    constructor(nomeAba:string, diasAtencao:number = 15, diasCritico:number = 30){
         const abaEncontrada = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(nomeAba)
         if(!abaEncontrada){
             throw new Error("[ERRO]");
@@ -31,10 +31,10 @@ class AuditorPlanilha {
     public auditarPendencias(): RegistroPendente[]{
         const dados = this.aba.getDataRange().getValues();
         const pendentes:RegistroPendente[] = [];
-        for(let  i = 1; i<dados.length; i++){
+        for(let  i = 2; i<dados.length; i++){
             const linha = dados[i];
-            const status = String(linha[5] || "").trim().toUpperCase();
-            const dataColeta = linha[3];
+            const status = String(linha[8] || "").trim().toUpperCase();
+            const dataColeta = linha[6];
             if(status === "SUBIU" || !(dataColeta instanceof Date)){
                 continue;
             }
@@ -43,9 +43,9 @@ class AuditorPlanilha {
                 const urgencia: NivelUrgencia = diasAtraso >= this.diasLimiteCritico ? "CRITICO" : "ATENCAO";
                 pendentes.push({
                     linhaPlanilha: i + 1,
-                    dt: linha[0],
-                    nf: linha[1],
-                    evento: linha[2],
+                    dt: String(linha[3]),
+                    nf: Number(linha[4]),
+                    evento: String(linha[5]),
                     diasAtraso:diasAtraso,
                     urgencia:urgencia,
                 })
@@ -59,7 +59,7 @@ class AuditorPlanilha {
 
 function executarAuditoriaPlanilha(): void{
     try{
-        const auditor = new AuditorPlanilha("CONTROLE LUPEON");
+        const auditor = new AuditorPlanilha("ARQUIVO");
         const pendentes = auditor.auditarPendencias();
         const ui = SpreadsheetApp.getUi();
         if (pendentes.length === 0){

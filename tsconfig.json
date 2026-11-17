@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2019",
-    "module": "None",
+    "module": "preserve",
     "lib": ["ES2019"],
     "strict": true,
-    "noImplicitAny": true,
     "types": ["google-apps-script"]
   }
 }
