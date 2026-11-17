@@ -17,6 +17,7 @@ function onOpen() {
     .addItem('🕒 Conferir NFs sem Upload', 'pendentes')
     .addItem('📅 Conferir dia com mais upload', 'maisUploads')
     .addItem('📊 Conferir uploads de hoje', 'uploadsDeHoje')
+    .addItem('❌ Conferir pendencias','executarAuditoriaPendencias')
     .addSeparator()
     .addItem("❗ REGISTRAR: ", 'titulo')
     .addItem('📝 Adicionar Registros', 'abrirExplicacao')

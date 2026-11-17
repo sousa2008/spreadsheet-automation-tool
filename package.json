@@ -1,0 +1,24 @@
+{
+  "name": "spreadsheet-automation-tool",
+  "version": "1.0.0",
+  "description": "Sistema interno desenvolvido para otimizar o fluxo operacional de arquivos, coletas e auditorias na **MA2 Transportes**, criado no contexto de melhoria contínua de processos durante atividades de estágio.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sousa2008/spreadsheet-automation-tool.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sousa2008/spreadsheet-automation-tool/issues"
+  },
+  "homepage": "https://github.com/sousa2008/spreadsheet-automation-tool#readme",
+  "devDependencies": {
+    "@types/google-apps-script": "^2.0.15"
+  }
+}
