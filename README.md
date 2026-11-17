@@ -25,6 +25,7 @@ O projeto foi construído utilizando conceitos modernos de desenvolvimento ágil
 * **Google Sheets API** (Camada de Persistência de Dados)
 * **HTML5 / CSS3** (Interface de Front-end para os modais de importação)
 * **Supabase / PostegreSQL** (Conexão e gerenciamento de=o banco de dados na nuvem)
+* * **TypeScript** (Integração juntamente ao Apps Script na criação do Back-end via clasp)
 
 ---
 
