@@ -31,6 +31,7 @@ class AuditorPlanilha {
                     dt: String(linha[3]),
                     nf: Number(linha[4]),
                     evento: String(linha[5]),
+                    status: status,
                     diasAtraso: diasAtraso,
                     urgencia: urgencia,
                 });
@@ -48,10 +49,20 @@ function executarAuditoriaPlanilha() {
             ui.alert("Tudo em dia! Nenhuma pendência em atraso encontrada.");
         }
         else {
-            const relatorio = pendentes.map(item => {
-                return `[${item.urgencia} - LINHA ${item.linhaPlanilha} | DT: ${item.dt} | NF: ${item.nf} - (${item.diasAtraso} DIAS ATRADOS)]`;
+            const grupos = {};
+            pendentes.forEach(item => {
+                const chaveStatus = item.status || "SEM STATUS";
+                if (!grupos[chaveStatus]) {
+                    grupos[chaveStatus] = [];
+                }
+                grupos[chaveStatus].push(item);
             });
-            ui.alert(relatorio.join("\n"));
+            const relatorio = Object.keys(grupos).map(status => {
+                const itensDoGrupo = grupos[status];
+                const linhaFormatada = itensDoGrupo.map(item => `[${item.urgencia} - LINHA ${item.linhaPlanilha} | DT: ${item.dt} | NF: ${item.nf} - (${item.diasAtraso} DIAS ATRASADOS)]`);
+                return `${status}\n${linhaFormatada.join("\n")}`;
+            });
+            ui.alert(relatorio.join("\n\n"));
         }
     }
     catch (erro) {
