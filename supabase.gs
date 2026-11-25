@@ -3,10 +3,7 @@ function configurarCofre() {
   propriedades.setProperty('SUPABASE_URL', '');
   propriedades.setProperty('SUPABASE_KEY', '');
 }
-// CÓDIGO ORIGINAL (Não perca o seu link verdadeiro!)
-// const urlBase = 'https://ntegpwibjtoamvajlwxk.supabase.co/rest/v1/';
 
-// CÓDIGO SABOTADO
 
 
 function enviarParaSupabase(dadosParaEnviar){

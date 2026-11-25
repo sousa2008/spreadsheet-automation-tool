@@ -3,3 +3,5 @@ node_modules/
 .clasprc.json
 .env
 auditoria.js
+sla.js
+web/config.php

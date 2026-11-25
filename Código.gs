@@ -18,6 +18,7 @@ function onOpen() {
     .addItem('📅 Conferir dia com mais upload', 'maisUploads')
     .addItem('📊 Conferir uploads de hoje', 'uploadsDeHoje')
     .addItem('❌ Conferir pendencias','executarAuditoriaPlanilha')
+    .addItem('📉 Análise SLA','executarAnaliseSLA')
     .addSeparator()
     .addItem("❗ REGISTRAR: ", 'titulo')
     .addItem('📝 Adicionar Registros', 'abrirExplicacao')
