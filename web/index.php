@@ -1,7 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'SupabaseClient.php';
-
+require_once 'header.php';
 
 
 $busca = trim($_GET['busca'] ?? '');
@@ -41,41 +41,6 @@ $dados = $supabase->buscar('controle_lupeon', implode('&', $filtros));
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle Lupeon — MA2 Transportes</title>
     <style>
-        :root {
-            --bg: #0f172a;
-            --surface: #1e293b;
-            --surface-hover: #263348;
-            --border: #334155;
-            --text: #f1f5f9;
-            --muted: #94a3b8;
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            padding: 2rem 1rem;
-            line-height: 1.5;
-        }
-
-        .container { max-width: 1150px; margin: 0 auto; }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .header h1 { font-size: 1.4rem; font-weight: 600; }
-        .header span { color: var(--muted); font-size: 0.9rem; }
-
         .filter-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -86,7 +51,6 @@ $dados = $supabase->buscar('controle_lupeon', implode('&', $filtros));
             gap: 0.75rem;
             flex-wrap: wrap;
         }
-
         .filter-card input,
         .filter-card select {
             background: var(--bg);
@@ -97,58 +61,10 @@ $dados = $supabase->buscar('controle_lupeon', implode('&', $filtros));
             font-size: 0.95rem;
             outline: none;
         }
-
         .filter-card input { flex: 2; min-width: 220px; }
         .filter-card select { flex: 1; min-width: 180px; }
         .filter-card input:focus,
         .filter-card select:focus { border-color: var(--primary); }
-
-        .btn {
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-primary { background: var(--primary); color: #fff; }
-        .btn-primary:hover { background: var(--primary-hover); }
-        .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--muted); }
-        .btn-secondary:hover { color: var(--text); border-color: var(--muted); }
-
-        .table-wrapper {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            overflow-x: auto;
-        }
-
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-
-        th {
-            background: #162032;
-            color: var(--muted);
-            font-size: 0.78rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            padding: 0.9rem 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        td {
-            padding: 0.85rem 1rem;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.92rem;
-        }
-
-        tbody tr:last-child td { border-bottom: none; }
-        tbody tr:hover { background: var(--surface-hover); }
-
         .badge {
             padding: 0.25rem 0.65rem;
             border-radius: 999px;
@@ -156,7 +72,6 @@ $dados = $supabase->buscar('controle_lupeon', implode('&', $filtros));
             font-weight: 600;
             display: inline-block;
         }
-
         .badge-subiu { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
         .badge-falta { background: rgba(239, 68, 68, 0.15); color: #f87171; }
         .badge-nao-liberado { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
@@ -169,7 +84,6 @@ $dados = $supabase->buscar('controle_lupeon', implode('&', $filtros));
             color: var(--muted);
             font-size: 0.9rem;
         }
-
         .pagination-actions {
             display: flex;
             gap: 0.5rem;

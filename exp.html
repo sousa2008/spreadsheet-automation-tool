@@ -1,59 +1,102 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="pt-BR">
 <head>
   <base target="_top">
+  <meta charset="UTF-8">
   <style>
     :root {
-      --primary-color: #e3c0fb;
-      --second-color: #bf72f3
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #a855f7;
+      --accent-hover: #9333ea;
     }
-
-    span {
-      color: var(--second-color)
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: Arial, sans-serif;
-      padding: 25px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      line-height: 1.5;
     }
-
-    button {
-      padding: 20px 30px;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      cursor: pointer;
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    h2 { font-size: 1.15rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .tag {
+      background: rgba(168, 85, 247, 0.15);
+      color: #c084fc;
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    p { color: var(--muted); font-size: 0.9rem; margin-bottom: 12px; }
+    .rules {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      list-style: none;
+    }
+    .rules li {
+      font-size: 0.88rem;
+      padding: 4px 0;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    .rules li:last-child { border-bottom: none; }
+    .col-badge {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      font-weight: 600;
+      padding: 1px 8px;
       border-radius: 4px;
-      font-weight: bold;
+      font-size: 0.8rem;
     }
-
-    button:hover {
-      background-color: var(--second-color);
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    button {
+      padding: 12px 14px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: #fff;
+      transition: background 0.15s ease;
     }
-
-    ul {
-      padding: 5px;
-    }
+    .btn-frete { background: var(--primary); }
+    .btn-frete:hover { background: var(--primary-hover); }
+    .btn-extra { background: var(--accent); }
+    .btn-extra:hover { background: var(--accent-hover); }
   </style>
 </head>
-
 <body>
-  <h2>Manual</h2>
-  <p>Essa aqui é a <span>IMPORTAÇÃO DE ARQUIVO</span></p>
+  <div class="card">
+    <h2>Importação de Arquivo <span class="tag">LUPEON</span></h2>
+    <p>Copie as linhas da aba <strong>COLETAS</strong> e confirme o alinhamento das colunas antes de registrar:</p>
 
-  <p>Copie as colunas da planilha <span>COLETAS</span> e cole na área indicada</p>
-  <p>Garanta que os seguintes dados estejam nas seguintes colunas:</p>
-  <ul>
-    <li>A <span> DT </span> esteja na coluna F;</li>
-    <li> A <span> DATA DA COLETA </span> na coluna L;</li>
-    <li>A <span> NF </span> na coluna W;</li>
-  </ul>
-  <p>Após isso faça a importação</p>
-  <p>Confira se os dados batem com a planilha de coletas</p>
+    <ul class="rules">
+      <li><span>Número da DT</span><span class="col-badge">Coluna F</span></li>
+      <li><span>Data da Coleta</span><span class="col-badge">Coluna L</span></li>
+      <li><span>Nota Fiscal (NF)</span><span class="col-badge">Coluna W</span></li>
+    </ul>
 
-  <button onclick="google.script.run.abrirIndex()">Registrar Fretes!</button>
-  <button onclick="google.script.run.abrirExtra()">Registrar Extra-Fretes!</button>
+    <p style="font-size: 0.82rem; margin-bottom: 14px;">Após importar, confira se as linhas inseridas batem com a planilha.</p>
+
+    <div class="actions">
+      <button class="btn-frete" onclick="google.script.run.abrirIndex()">Registrar Fretes</button>
+      <button class="btn-extra" onclick="google.script.run.abrirExtra()">Registrar Extra-Fretes</button>
+    </div>
+  </div>
 </body>
-
 </html>

@@ -1,90 +1,89 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="pt-BR">
 <head>
   <base target="_top">
+  <meta charset="UTF-8">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 18px;
+    }
+    h2 { font-size: 1.1rem; margin-bottom: 14px; }
+    #results { display: flex; flex-direction: column; gap: 10px; }
+    .nf-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nf-info { display: flex; flex-direction: column; gap: 2px; }
+    .nf-numero { font-weight: 700; font-size: 0.98rem; }
+    .nf-evento { color: var(--muted); font-size: 0.8rem; }
+    .btn-link {
+      padding: 8px 14px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .btn-link:hover { background: var(--primary-hover); }
+  </style>
 </head>
-<style>
-  :root {
-    --primary-color: #e3c0fb;
-    --second-color: #bf72f3
-  }
-
-  body {
-    font-family: Arial, sans-serif;
-    padding: 15px;
-  }
-
-  textarea {
-    width: 100%;
-    height: 180px;
-    margin-bottom: 15px;
-    padding: 10px;
-    box-sizing: border-box;
-    border-radius: 10px
-  }
-
-  button {
-    padding: 10px 15px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-    font-weight: bold;
-  }
-
-  button:hover {
-    background-color: var(--second-color);
-  }
-</style>
-
 <body>
-  <h2>Confira as nf's registradas: </h2>
-
-  <div id="results">
-
-  </div>
-  <!-- Guardamos o JSON de forma segura dentro de uma tag oculta -->
+  <h2>NFs encontradas para esta DT</h2>
+  <div id="results"></div>
   <input type="hidden" id="dadosServidor" value='<?= dadosInjetados ?>'>
 
- <script>
+  <script>
     window.onload = function() {
       const dadosBrutos = document.getElementById('dadosServidor').value;
       const filtrado = JSON.parse(dadosBrutos);
-      
       const div = document.getElementById('results');
 
       if (!filtrado || filtrado.length === 0) return;
 
       filtrado.forEach(linha => {
-        const p = document.createElement("p");
-        p.className = "item-nf";
-        p.innerText = "NF: " + linha[0] + " | Evento: " + linha[1];
-        div.appendChild(p);
+        const card = document.createElement("div");
+        card.className = "nf-card";
+
+        const info = document.createElement("div");
+        info.className = "nf-info";
+        info.innerHTML = `<span class="nf-numero">NF ${linha[0]}</span><span class="nf-evento">Evento: ${linha[1]}</span>`;
 
         const btn = document.createElement("button");
-        btn.className = "btn-link"; 
+        btn.className = "btn-link";
         btn.innerText = "Visualizar NF";
-        
         btn.onclick = function() {
-          const nfSelecionada = linha[0];
-          
+          btn.disabled = true;
+          btn.innerText = "Abrindo...";
           google.script.run
-            .withSuccessHandler(() => {
-              google.script.host.close(); 
-            }).encontrarNf(nfSelecionada); 
-        }; // Fechamento correto do btn.onclick
+            .withSuccessHandler(() => google.script.host.close())
+            .encontrarNf(linha[0]);
+        };
 
-        div.appendChild(btn);
-      }); 
+        card.appendChild(info);
+        card.appendChild(btn);
+        div.appendChild(card);
+      });
     };
   </script>
 </body>
-
-</html>
-
-
-</body>
-
 </html>

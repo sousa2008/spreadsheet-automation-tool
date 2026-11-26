@@ -25,4 +25,19 @@
             $dados = json_decode($resposta, true);
             return is_array($dados) ? $dados : [];
         }
+
+        public function buscarTodos(string $tabela, string $query = "select=*"): array {
+            $todos = [];
+            $offset = 0;
+            $limite = 1000;
+
+            do {
+                $queryPaginada = "{$query}&limit={$limite}&offset={$offset}";
+                $lote = $this->buscar($tabela, $queryPaginada);
+                $todos = array_merge($todos, $lote);
+                $offset += $limite;
+            } while (count($lote) === $limite);
+
+            return $todos;
+        }
     }
