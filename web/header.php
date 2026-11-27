@@ -1,3 +1,14 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (empty($_SESSION['autenticado'])) {
+    header('Location: login.php');
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -100,6 +111,7 @@
                 <a href="index.php">Painel de Registros</a>
                 <a href="auditoria.php">Auditoria de Pendências</a>
                 <a href="sla.php">Análise de SLA</a>
+                <a href="logout.php">Sair</a>
             </div>
         </div>
     </nav>
