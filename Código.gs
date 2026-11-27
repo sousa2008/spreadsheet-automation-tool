@@ -22,6 +22,7 @@ function onOpen() {
     .addSeparator()
     .addItem("❗ REGISTRAR: ", 'titulo')
     .addItem('📝 Adicionar Registros', 'abrirExplicacao')
+    .addItem('🛜 Acionar n8n','acionarN8N')
     .addToUi();
 }
 
@@ -697,4 +698,37 @@ function isNFValida(nf) {
   const tamanhoValido = nfTexto.length >= 3 && nfTexto.length <= 10;
   
   return eApenasNumero && tamanhoValido;
+}
+
+
+function acionarN8N() {
+  // URL fixa + caminho do Webhook do n8n
+  const url = "https://justly-obsession-parched.ngrok-free.dev/webhook/656d750b-f027-4ab6-85cd-bfd2a2282013";
+  
+  const opcoes = {
+    "method": "post",
+    "contentType": "application/json",
+    "headers": {
+      // Evita a tela de aviso gratuita do ngrok na primeira requisição
+      "ngrok-skip-browser-warning": "true" 
+    },
+    "payload": JSON.stringify({
+      "origem": "Google Sheets",
+      "data": new Date().toISOString()
+    }),
+    "muteHttpExceptions": true
+  };
+
+  try {
+    const resposta = UrlFetchApp.fetch(url, opcoes);
+    
+    if (resposta.getResponseCode() === 200) {
+      const dados = JSON.parse(resposta.getContentText());
+      SpreadsheetApp.getUi().alert("Processo concluído:\n\n" + dados.mensagem);
+    }else {
+      SpreadsheetApp.getUi().alert("Erro no n8n: " + resposta.getContentText());
+    }
+  } catch (erro) {
+    SpreadsheetApp.getUi().alert("Não foi possível conectar. Verifique se o n8n está aberto.");
+  }
 }
