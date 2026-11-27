@@ -1,4 +1,4 @@
 <?php
-$supabaseUrl = getenv('SUPABASE_URL') ?: 'SUA_URL_SUPABASE';
-$supabaseKey = getenv('SUPABASE_KEY') ?: 'SUA_ANON_KEY';
-$senhaPainel = getenv('PAINEL_SENHA') ?: 'SUA_SENHA_AQUI';
+$supabaseUrl = getenv('SUPABASE_URL') ?: 'URL_DO_SUPABASE';
+$supabaseKey = getenv('SUPABASE_KEY') ?: 'CHAVE_DO_SUPABASE';
+$senhaPainel = getenv('PAINEL_SENHA') ?: 'SENHA_DO_PAINEL';
